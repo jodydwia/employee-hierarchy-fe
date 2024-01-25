@@ -40,6 +40,7 @@ export default {
   },
   data() {
     return {
+      API_URL: "http://localhost:9090/api/v1/employees",
       employees: [],
       employeeHierarchy: null,
       employeeName: []
@@ -47,7 +48,7 @@ export default {
   },
   methods: {
     async getEmployeeList() {
-      const res = await fetch('http://localhost:9090/api/v1/employees');
+      const res = await fetch(this.API_URL);
       const {data} = await res.json();
       this.employees = data;
     },
@@ -55,7 +56,7 @@ export default {
     async getEmployeeHierarchy(event) {
       event.preventDefault();
       this.employeeName = [];
-      const res = await fetch("http://localhost:9090/api/v1/employees/search?name="+event.target.value.toLowerCase());
+      const res = await fetch(`${this.API_URL}/search?name=${event.target.value.toLowerCase()}`);
       const {data} = await res.json();
       this.employeeHierarchy = data;
       this.getEmployeeName(data);
