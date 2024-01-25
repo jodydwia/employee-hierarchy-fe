@@ -1,11 +1,21 @@
 <template>
     <div>
-      <form>
-        <label for="employee"><strong>Employee: </strong></label>
-        <select name="employee" id="employee" @change="getEmployeeHierarchy($event)">
-          <option value="">Please select an employee</option>
-          <option v-for="employee in employees" :key="employee.id" :value="employee.name" >{{employee.name}}</option>
-        </select>
+      <form class="employee__form">
+          <div>
+            <label for="selectEmployee"><strong>Select Employee: </strong></label>
+            <select name="selectEmployee" id="selectEmployee" ref="selectEmployee" @change="getEmployeeHierarchy($event).then(()=>{
+                  this.$refs.searchEmployee.value='';
+          })">
+              <option value="">Please select an employee</option>
+              <option v-for="employee in employees" :key="employee.id" :value="employee.name" >{{employee.name}}</option>
+            </select>
+          </div>
+        <div>
+          <label for="selectEmployee"><strong>Search Employee: </strong></label>
+          <input type="text" name="searchEmployee" id="searchEmployee" ref="searchEmployee" @keydown.enter="getEmployeeHierarchy($event).then(()=>{
+                  this.$refs.selectEmployee.value='';
+          })" placeholder="type name then enter">
+        </div>
       </form>
     </div>
     <div class="employee__hierarchy">
@@ -43,8 +53,9 @@ export default {
     },
 
     async getEmployeeHierarchy(event) {
+      event.preventDefault();
       this.employeeName = [];
-      const res = await fetch("http://localhost:9090/api/v1/employees/search?name="+event.target.value);
+      const res = await fetch("http://localhost:9090/api/v1/employees/search?name="+event.target.value.toLowerCase());
       const {data} = await res.json();
       this.employeeHierarchy = data;
       this.getEmployeeName(data);
@@ -80,6 +91,12 @@ export default {
   padding: 10px;
 }
 
+
+.employee__form {
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+}
 .employee__hierarchy {
   max-width: 50%;
   margin: 10px auto;
