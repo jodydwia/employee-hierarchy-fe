@@ -19,10 +19,17 @@
       </form>
     </div>
     <div class="employee__hierarchy">
-      <p v-show="employeeHierarchy"><strong>Employee Hierarchy:</strong></p>
-      <p>{{employeeName.length > 0 ? employeeName.join(" has manager --> ") : employeeHierarchy?.message}}</p>
+      <p><strong>Employee Hierarchy:</strong></p>
+      <div v-if="employeeHierarchy && employeeName.length > 0">
+        <p>{{employeeName.join(" has manager --> ")}}</p>
+        <p>{{`total direct reports: ${employeeHierarchy?.directReports}`}}</p>
+        <p>{{`total indirect reports: ${employeeHierarchy?.indirectReports}`}}</p>
+      </div>
+      <div v-else>
+        <p>{{employeeHierarchy?.message}}</p>
+      </div>
       <hr>
-      <p v-show="employeeHierarchy"><strong>Json data:</strong></p>
+      <p><strong>Json data:</strong></p>
       <pre>
         {{employeeHierarchy}}
       </pre>
@@ -59,17 +66,17 @@ export default {
       const res = await fetch(`${this.API_URL}/search?name=${event.target.value.toLowerCase()}`);
       const {data} = await res.json();
       this.employeeHierarchy = data;
-      this.getEmployeeName(data);
+      this.getEmployeeName(data.treeNode);
     },
 
     getEmployeeName(data) {
-      if(data.value) {
+      if(data?.value) {
         if(this.employeeName.length === 0) {
-          this.employeeName.push(data.value.name)
+          this.employeeName.unshift(data.value.name)
         }
-        if(data.childNodes.length > 0) {
+        if(data?.childNodes.length > 0) {
           const manager = data.childNodes[0];
-          this.employeeName.push(manager.value.name);
+          this.employeeName.unshift(manager.value.name);
           this.getEmployeeName(manager);
         }
       }
@@ -99,7 +106,7 @@ export default {
   gap: 25px;
 }
 .employee__hierarchy {
-  max-width: 50%;
+  max-width: 80%;
   margin: 10px auto;
   text-align: left;
   padding: 5px;
